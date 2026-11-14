@@ -51,6 +51,8 @@ services:
     build:
       context: ./src/lead-delivery-admin
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: http://localhost:5080
     ports:
       - "5173:80"
     depends_on:
