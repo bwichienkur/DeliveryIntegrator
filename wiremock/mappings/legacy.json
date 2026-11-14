@@ -1,0 +1,10 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/legacy"
+  },
+  "response": {
+    "status": 500,
+    "body": "error"
+  }
+}
