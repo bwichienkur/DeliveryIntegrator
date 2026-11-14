@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.SqlServer;
+using LeadDelivery.Worker;
 using LeadDelivery.Infrastructure;
 using LeadDelivery.Infrastructure.Persistence;
 using LeadDelivery.Infrastructure.Services;
