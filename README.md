@@ -15,9 +15,13 @@
 
 ## Quick start (Docker)
 
+Requires **Docker Desktop running** (Windows: wait until the engine is up; `docker version` must show Server).
+
 ```bash
 docker compose up --build
 ```
+
+If the **admin** image fails on `npm ci`, ensure `src/lead-delivery-admin/package-lock.json` is present (committed in repo); it is required for reproducible Docker builds.
 
 | Service | URL |
 |---------|-----|
