@@ -1,0 +1,57 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "Your_password123" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+    command: ["--global-response-templating", "--verbose"]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      ConnectionStrings__LeadDelivery: "Server=sqlserver,1433;Database=LeadDelivery;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=False"
+      ADMIN_API_KEY: dev-admin-key
+    ports:
+      - "5080:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      ConnectionStrings__LeadDelivery: "Server=sqlserver,1433;Database=LeadDelivery;User Id=sa;Password=Your_password123;TrustServerCertificate=True;Encrypt=False"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      api:
+        condition: service_started
+
+  admin:
+    build:
+      context: ./src/lead-delivery-admin
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
